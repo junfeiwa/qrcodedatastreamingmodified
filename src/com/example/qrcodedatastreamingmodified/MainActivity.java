@@ -4,13 +4,10 @@ package com.example.qrcodedatastreamingmodified;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -249,10 +246,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
  // InitSurfaceView
     private void initSurfaceView() {
         mSurfaceview = (SurfaceView) this.findViewById(R.id.Surfaceview);
-        mSurfaceHolder = mSurfaceview.getHolder(); // 绑定SurfaceView，取得SurfaceHolder对象
-        mSurfaceHolder.addCallback(MainActivity.this); // SurfaceHolder加入回调接口
-        // mSurfaceHolder.setFixedSize(176, 144); // 预览大小設置
-        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);// 設置顯示器類型，setType必须设置
+        mSurfaceHolder = mSurfaceview.getHolder();
+        mSurfaceHolder.addCallback(MainActivity.this); 
+        // mSurfaceHolder.setFixedSize(176, 144);
+     
     }
     
     
@@ -327,18 +324,13 @@ s[0]="Money causes teenagers to feel stress. It makes them feel bad about themse
         bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
         Log.i("123","should change image");
         return bitmap;
-       // ImageView newiv=new ImageView(this);
-        //newiv.setImageBitmap(bitmap);
-        //this.setContentView(newiv);
+      
    }
 
 
-    
-    
- // 定义对象
-    private SurfaceView mSurfaceview = null;  // SurfaceView对象：(视图组件)视频显示 
-    private SurfaceHolder mSurfaceHolder = null;  // SurfaceHolder对象：(抽象接口)SurfaceView支持类 
-    private Camera mCamera =null;     // Camera对象，相机预览
+    private SurfaceView mSurfaceview = null;  
+    private SurfaceHolder mSurfaceHolder = null;  
+    private Camera mCamera =null;    
     
     public static String TAG = "cn";
     boolean bIfPreview = false;
