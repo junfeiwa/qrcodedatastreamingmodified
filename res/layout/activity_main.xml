@@ -1,0 +1,31 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical" >
+
+         <SurfaceView
+             android:id="@+id/Surfaceview"
+             android:layout_width="203dp"
+             android:layout_height="187dp"
+             android:layout_alignParentLeft="true"
+             android:layout_alignParentTop="true" />
+
+         <ImageView
+             android:id="@+id/qrcode_image"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_weight="0.51"
+             android:src="@drawable/ic_launcher" />
+
+    </LinearLayout>
+
+</RelativeLayout>
