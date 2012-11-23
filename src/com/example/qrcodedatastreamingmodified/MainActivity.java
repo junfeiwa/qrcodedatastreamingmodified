@@ -168,12 +168,35 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
             
-           try {
-                Log.i("file", "going into onPreviewFrame");
-                
-               
-            } catch (Exception e) {
-                Log.v("System.out", e.toString());
+        	long T6 = System.nanoTime();
+
+            //Log.i("time1", "going into onPreviewFrame");
+
+            if(count == 0){
+
+             startTime = System.nanoTime();
+
+            count ++;
+
+          //  Log.i("time1", "StartTime:"+startTime);
+
+            }
+
+            else if (count == 100){
+
+             endTime = System.nanoTime();
+
+            count=0;
+             total=endTime-startTime;
+           // Log.i("time1", "EndTime:"+endTime);
+            double seconds = total/1.0E09;
+            Log.i("time1", "TotalTime:"+seconds);
+            }
+
+            else{
+
+            count++;
+
             }
 
         }
@@ -300,7 +323,7 @@ s[0]="Money causes teenagers to feel stress. It makes them feel bad about themse
         
         try {
           try {
- 			result = qw.encode(s, BarcodeFormat.QR_CODE, 800, 800);
+ 			result = qw.encode(s, BarcodeFormat.QR_CODE, 500, 500);
  		} catch (WriterException e) {
  			// TODO Auto-generated catch block
  			//e.printStackTrace();
@@ -336,5 +359,8 @@ s[0]="Money causes teenagers to feel stress. It makes them feel bad about themse
     boolean bIfPreview = false;
     int mPreviewHeight = 480;
     int mPreviewWidth = 640;
-    
+    public int count=0;
+	public long startTime;
+	public long endTime;
+	public long total;
 }

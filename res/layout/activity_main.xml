@@ -12,12 +12,10 @@
         android:layout_centerHorizontal="true"
         android:orientation="vertical" >
 
-         <SurfaceView
-             android:id="@+id/Surfaceview"
-             android:layout_width="203dp"
-             android:layout_height="187dp"
-             android:layout_alignParentLeft="true"
-             android:layout_alignParentTop="true" />
+        <SurfaceView
+            android:id="@+id/Surfaceview"
+            android:layout_width="203dp"
+            android:layout_height="187dp" />
 
          <ImageView
              android:id="@+id/qrcode_image"
