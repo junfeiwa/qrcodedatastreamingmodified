@@ -4,9 +4,20 @@ package com.example.qrcodedatastreamingmodified;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import com.example.qrcodedatastreamingmodified.R.id;
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
+import com.google.zxing.FormatException;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Result;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.QRCodeReader;
 import com.google.zxing.qrcode.QRCodeWriter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -34,9 +45,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
 	public String[] s=new String[10];
 	public ImageView iv;
 	public Bitmap[] b=new Bitmap[10];
+	public QRCodeReader qrr=new QRCodeReader();
 	public QRCodeWriter qw=new QRCodeWriter();
+	public boolean isin=false;
 	private static final int WHITE = 0xFFFFFFFF;
 	  private static final int BLACK = 0xFF000000;
+	  public BinaryBitmap bmtobedecoded;
     public void surfaceCreated(SurfaceHolder holder)
    
     {
@@ -167,38 +181,42 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
     PreviewCallback mJpegPreviewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
+        	
+          //  ImageView iv = (ImageView)findViewById(R.id.imageView1);
+          //  ByteArrayOutputStream out = new ByteArrayOutputStream();
+          //  YuvImage yuvImage = new YuvImage(data, ImageFormat.NV21, width, height, null);
+          //  yuvImage.compressToJpeg(new Rect(0, 0, width, height), 50, out);
+          //  byte[] imageBytes = out.toByteArray();
+          //  Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+          //  iv.setImageBitmap(image);
             
-        	long T6 = System.nanoTime();
+        	int imageWidth = camera.getParameters().getPreviewSize().width  ;
+            int imageHeight =camera.getParameters().getPreviewSize().height ;
+            int RGBData[] = new int[imageWidth* imageHeight]; 
+            byte[] mYUVData = new byte[data.length];    
+            System.arraycopy(data, 0, mYUVData, 0, data.length);
+            decodeYUV420SP(RGBData, mYUVData, imageWidth, imageHeight);
 
-            //Log.i("time1", "going into onPreviewFrame");
-
-            if(count == 0){
-
-             startTime = System.nanoTime();
-
-            count ++;
-
-          //  Log.i("time1", "StartTime:"+startTime);
-
-            }
-
-            else if (count == 100){
-
-             endTime = System.nanoTime();
-
-            count=0;
-             total=endTime-startTime;
-           // Log.i("time1", "EndTime:"+endTime);
-            double seconds = total/1.0E09;
-            Log.i("time1", "TotalTime:"+seconds);
-            }
-
-            else{
-
-            count++;
-
-            }
-
+            /*Bitmap bitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+            bitmap.setPixels(RGBData, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+            if(bitmap==null)
+            	Log.i("time1","null");
+            bmtobedecoded=bitmap;*/
+            LuminanceSource source = new RGBLuminanceSource(imageWidth,imageHeight,RGBData);
+      	    bmtobedecoded = new BinaryBitmap(new HybridBinarizer(source));
+      	  try {
+    		  Result result;
+			result=qrr.decode(bmtobedecoded);
+			Log.i("time1","The result is "+result.toString());
+		} catch (NotFoundException e) {
+			Log.i("time1","qr not found");
+		} catch (ChecksumException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         }
 
     };
@@ -218,51 +236,31 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
 
     
     // Change YUV420SP to RGB
-    static public void decodeYUV420SP(byte[] rgbBuf, byte[] yuv420sp, int width, int height) {
-    	final int frameSize = width *height ;
-		if (rgbBuf == null)
-			throw new NullPointerException("buffer 'rgbBuf' is null");
-		if (rgbBuf.length < frameSize * 3)
-			throw new IllegalArgumentException("buffer 'rgbBuf' size "
-					+ rgbBuf.length + " < minimum " + frameSize * 3);
+    static public void decodeYUV420SP(int[] rgb, byte[] yuv420sp, int width, int height) {
+        final int frameSize = width * height;
 
-		if (yuv420sp == null)
-			throw new NullPointerException("buffer 'yuv420sp' is null");
+        for (int j = 0, yp = 0; j < height; j++) {
+        int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
+        for (int i = 0; i < width; i++, yp++) {
+            int y = (0xff & ((int) yuv420sp[yp])) - 16;
+            if (y < 0) y = 0;
+            if ((i & 1) == 0) {
+                v = (0xff & yuv420sp[uvp++]) - 128;
+                u = (0xff & yuv420sp[uvp++]) - 128;
+            }
 
-		if (yuv420sp.length < frameSize * 3 / 2)
-			throw new IllegalArgumentException("buffer 'yuv420sp' size " + yuv420sp.length
-					+ " < minimum " + frameSize * 3 / 2);
-    	
-    	int i = 0, y = 0;
-    	int uvp = 0, u = 0, v = 0;
-    	int y1192 = 0, r = 0, g = 0, b = 0;
-    	
-    	for (int j = 0, yp = 0; j < height; j++) {
-    		uvp = frameSize + (j >> 1) * width;
-    		u = 0;
-    		v = 0;
-    		for (i = 0; i < width; i++, yp++) {
-    			y = (0xff & ((int) yuv420sp[yp])) - 16;
-    			if (y < 0) y = 0;
-    			if ((i & 1) == 0) {
-    				v = (0xff & yuv420sp[uvp++]) - 128;
-    				u = (0xff & yuv420sp[uvp++]) - 128;
-    			}
-    			
-    			y1192 = 1192 * y;
-    			r = (y1192 + 1634 * v);
-    			g = (y1192 - 833 * v - 400 * u);
-    			b = (y1192 + 2066 * u);
-    			
-    			if (r < 0) r = 0; else if (r > 262143) r = 262143;
-    			if (g < 0) g = 0; else if (g > 262143) g = 262143;
-    			if (b < 0) b = 0; else if (b > 262143) b = 262143;
-    			
-    			rgbBuf[yp * 3] = (byte)(r >> 10);
-    			rgbBuf[yp * 3 + 1] = (byte)(g >> 10);
-    			rgbBuf[yp * 3 + 2] = (byte)(b >> 10);
-    		}
-    	}
+            int y1192 = 1192 * y;
+            int r = (y1192 + 1634 * v);
+            int g = (y1192 - 833 * v - 400 * u);
+            int b = (y1192 + 2066 * u);
+
+            if (r < 0) r = 0; else if (r > 262143) r = 262143;
+            if (g < 0) g = 0; else if (g > 262143) g = 262143;
+            if (b < 0) b = 0; else if (b > 262143) b = 262143;
+
+            rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((b >> 10) & 0xff);
+        }
+    }
     }
     
     
@@ -286,6 +284,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
         setContentView(R.layout.activity_main);
 
         initSurfaceView();
+        iv=(ImageView) this.findViewById(id.qrcode_image);
 s[0]="Money causes teenagers to feel stress. It makes them feel bad about themselves and envy other people. My friend, for instance, lives with her family and has to share a room with her sister, who is very cute and intelligent. This girl wishes she could have her own room and have a lot of stuff, but she can’t have these things because her family doesn’t have much money. Her family’s income is pretty low because her father is old and doesn’t go to work. Her sister is the only one who works. Because her family can’t buy her the things she wants, she feels a lot of stress and gets angry sometimes. Once, she wanted a beautiful dress to wear to a sweetheart dance. She asked her sister for some money to buy the dress. She was disappointed because her sister didn’t have money to give her. She sat in silence for a little while and then started yelling out loud. She said her friends got anything they wanted but she didn’t. Then she felt sorry for herself and asked why she was born into a poor family. Not having money has caused this girl to think negatively about herself and her family. It has caused a lot of stress in her life.";
         
         s[1]="Note how the first sentence, My hometown, Wheaton, is famous for several amazing geographical features,is the most general statement. This sentence is different from the two sentences that follow it, since the second and third sentences mention specific details about the town's geography, and are not general statements.Money causes teenagers to feel stress. It makes them feel bad about themselves and envy other people. My friend, for instance, lives with her family and has to share a room with her sister, who is very cute and intelligent. This girl wishes she could have her own room and have a lot of stuff, but she can’t have these things because her family doesn’t have much money. Her family’s income is pretty low because her father is old and doesn’t go to work. Her sister is the only one who works. Because her family can’t buy her the things she wants, she feels a lot of stress and gets angry sometimes. Once, she wanted a beautiful dress to wear to a sweetheart dance. She asked her sister for some money to buy the dress. She was disappointed because her sister didn’t have money to give her. She sat in silence for a little while and then started yelling out loud. She said her friendsMoney causes teenagers to feel stress. It makes them feel bad about themselves and envy other people. My friend, for instance, lives with her family and has to share a room with her sister, who is very cute and intelligent. This girl wishes she could have her own room and have a lot of stuff, but she can’t have these things because her family doesn’t have much money. Her family’s income is pretty low because her father is old and doesn’t go to work. Her sister is the only one who works. Because her family can’t buy her the things she wants, she feels a lot of stress and gets angry sometimes. Once, she wanted a beautiful dress to wear to a sweetheart dance. She asked her sister for some money to buy the dress. She was disappointed because her sister didn’t have money to give her. She sat in silence for a little while and then started yelling out loud. She said her friends";
@@ -316,6 +315,30 @@ s[0]="Money causes teenagers to feel stress. It makes them feel bad about themse
      	      }
      	   }
      	});
+       
+       /* new Thread(new Runnable() {
+            public void run() {
+              while(true){
+            	  if(bmtobedecoded!=null)
+            		  Log.i("time1","null");
+            	  
+            	  try {
+            		  Result result;
+					result=qrr.decode(bmtobedecoded);
+					Log.i("time1","The result is "+result.toString());
+				} catch (NotFoundException e) {
+					Log.i("time1","qr not found");
+				} catch (ChecksumException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            	  
+              }
+            }
+           }).start();*/
     }
     public Bitmap encode(String s){
     	
