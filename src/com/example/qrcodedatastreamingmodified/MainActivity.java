@@ -44,10 +44,11 @@ import android.widget.ImageView;
 public class MainActivity extends Activity implements SurfaceHolder.Callback{
 	public String[] s=new String[10];
 	public ImageView iv;
-	public Bitmap[] b=new Bitmap[10];
+	public Bitmap b;
 	public QRCodeReader qrr=new QRCodeReader();
 	public QRCodeWriter qw=new QRCodeWriter();
 	public boolean isin=false;
+	public String decoderesult="This is initial text";
 	private static final int WHITE = 0xFFFFFFFF;
 	  private static final int BLACK = 0xFF000000;
 	  public BinaryBitmap bmtobedecoded;
@@ -208,6 +209,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
     		  Result result;
 			result=qrr.decode(bmtobedecoded);
 			Log.i("time1","The result is "+result.toString());
+			decoderesult=result.toString();
 		} catch (NotFoundException e) {
 			Log.i("time1","qr not found");
 		} catch (ChecksumException e) {
@@ -285,7 +287,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
 
         initSurfaceView();
         iv=(ImageView) this.findViewById(id.qrcode_image);
-s[0]="Money causes teenagers to feel stress. It makes them feel bad about themselves and envy other people. My friend, for instance, lives with her family and has to share a room with her sister, who is very cute and intelligent. This girl wishes she could have her own room and have a lot of stuff, but she can’t have these things because her family doesn’t have much money. Her family’s income is pretty low because her father is old and doesn’t go to work. Her sister is the only one who works. Because her family can’t buy her the things she wants, she feels a lot of stress and gets angry sometimes. Once, she wanted a beautiful dress to wear to a sweetheart dance. She asked her sister for some money to buy the dress. She was disappointed because her sister didn’t have money to give her. She sat in silence for a little while and then started yelling out loud. She said her friends got anything they wanted but she didn’t. Then she felt sorry for herself and asked why she was born into a poor family. Not having money has caused this girl to think negatively about herself and her family. It has caused a lot of stress in her life.";
+/*s[0]="Money causes teenagers to feel stress. It makes them feel bad about themselves and envy other people. My friend, for instance, lives with her family and has to share a room with her sister, who is very cute and intelligent. This girl wishes she could have her own room and have a lot of stuff, but she can’t have these things because her family doesn’t have much money. Her family’s income is pretty low because her father is old and doesn’t go to work. Her sister is the only one who works. Because her family can’t buy her the things she wants, she feels a lot of stress and gets angry sometimes. Once, she wanted a beautiful dress to wear to a sweetheart dance. She asked her sister for some money to buy the dress. She was disappointed because her sister didn’t have money to give her. She sat in silence for a little while and then started yelling out loud. She said her friends got anything they wanted but she didn’t. Then she felt sorry for herself and asked why she was born into a poor family. Not having money has caused this girl to think negatively about herself and her family. It has caused a lot of stress in her life.";
         
         s[1]="Note how the first sentence, My hometown, Wheaton, is famous for several amazing geographical features,is the most general statement. This sentence is different from the two sentences that follow it, since the second and third sentences mention specific details about the town's geography, and are not general statements.Money causes teenagers to feel stress. It makes them feel bad about themselves and envy other people. My friend, for instance, lives with her family and has to share a room with her sister, who is very cute and intelligent. This girl wishes she could have her own room and have a lot of stuff, but she can’t have these things because her family doesn’t have much money. Her family’s income is pretty low because her father is old and doesn’t go to work. Her sister is the only one who works. Because her family can’t buy her the things she wants, she feels a lot of stress and gets angry sometimes. Once, she wanted a beautiful dress to wear to a sweetheart dance. She asked her sister for some money to buy the dress. She was disappointed because her sister didn’t have money to give her. She sat in silence for a little while and then started yelling out loud. She said her friendsMoney causes teenagers to feel stress. It makes them feel bad about themselves and envy other people. My friend, for instance, lives with her family and has to share a room with her sister, who is very cute and intelligent. This girl wishes she could have her own room and have a lot of stuff, but she can’t have these things because her family doesn’t have much money. Her family’s income is pretty low because her father is old and doesn’t go to work. Her sister is the only one who works. Because her family can’t buy her the things she wants, she feels a lot of stress and gets angry sometimes. Once, she wanted a beautiful dress to wear to a sweetheart dance. She asked her sister for some money to buy the dress. She was disappointed because her sister didn’t have money to give her. She sat in silence for a little while and then started yelling out loud. She said her friends";
         
@@ -301,20 +303,96 @@ s[0]="Money causes teenagers to feel stress. It makes them feel bad about themse
         for(int i=0;i<=9;i++){
      	   s[i]=s[i].substring(0, 200);}
         for(int a=0;a<=9;a++)
-         b[a]= encode(s[a]);
+         b[a]= encode(s[a]);*/
         iv=(ImageView) this.findViewById(com.example.qrcodedatastreamingmodified.R.id.qrcode_image);
         boolean a=iv.post(new Runnable() {  
      	   
      	   int j = 0;      
      	   @Override   
      	   public void run() {
-     		  if(j<=999999)
+     		 /* if(j<=999999)
      	      iv.setImageBitmap(b[j%10]);
      	      if(j++ <= 999999){
      	         iv.postDelayed(this, 100);
-     	      }
+     	      }*/
+     		          	long T6 = System.nanoTime();
+     		 
+     		           //Log.i("time1", "going into onPreviewFrame");
+     		 
+     		             if(count == 0){
+     		 
+     		              startTime = System.nanoTime();
+     		 
+     		             count ++;
+     		 
+     		           //  Log.i("time1", "StartTime:"+startTime);
+     		 
+     		             }
+     		 
+     		             else if (count == 10){
+     		 
+     		              endTime = System.nanoTime();
+     		 
+     		             count=0;
+     		              total=endTime-startTime;
+     		            // Log.i("time1", "EndTime:"+endTime);
+     		            double seconds = total/1.0E09;
+     		             Log.i("time1", "TotalTime:"+seconds);
+     		             }
+     		 
+     		             else{
+     		 
+     		             count++;
+     		 
+     		              }
+
+     		   b=encode(decoderesult);
+     		   iv.setImageBitmap(b);
+     		   iv.postDelayed(this, 0);
      	   }
      	});
+        boolean bb=iv.post(new Runnable() {  
+      	   
+      	   int j = 0;      
+      	   @Override   
+      	   public void run() {
+      		 
+      		 
+      		           //Log.i("time1", "going into onPreviewFrame");
+      		 
+      		             if(count == 0){
+      		 
+      		              startTime = System.nanoTime();
+      		 
+      		             count ++;
+      		 
+      		           //  Log.i("time1", "StartTime:"+startTime);
+      		 
+      		             }
+      		 
+      		             else if (count == 10){
+      		 
+      		              endTime = System.nanoTime();
+      		 
+      		             count=0;
+      		              total=endTime-startTime;
+      		            // Log.i("time1", "EndTime:"+endTime);
+      		            double seconds = total/1.0E09;
+      		             Log.i("time1", "TotalTime:"+seconds);
+      		             }
+      		 
+      		             else{
+      		 
+      		             count++;
+      		 
+      		              }
+
+      		   b=encode(decoderesult);
+      		   iv.setImageBitmap(b);
+      		   iv.postDelayed(this, 0);
+      	   }
+      	});
+       
        
        /* new Thread(new Runnable() {
             public void run() {
